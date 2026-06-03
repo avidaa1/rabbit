@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AVIDAA — Rabbit</title>
+<!-- security -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; frame-src 'none';">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
+<!-- no crawl -->
+<meta name="robots" content="noindex, nofollow">
+<!-- GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-G8M1YZQ8WF"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-G8M1YZQ8WF');</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+:root{
+  --bg:#050508;
+  --surface:#0a0a10;
+  --line:#1a1a2e;
+  --dim:#2a2a3e;
+  --text:#c8c8d8;
+  --muted:#5a5a7a;
+  --accent:#7b6fff;
+  --gold:#c9a84c;
+  --red:#ff4466;
+  --mono:'Share Tech Mono',monospace;
+  --serif:'Cormorant Garamond',serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+  width:100%;min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+
+/* scan line overlay */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,transparent 2px,
+    rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px
+  );
+  pointer-events:none;z-index:9999;
+}
+
+/* noise grain */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9998;opacity:.6;
+}
+
+canvas#bg{
+  position:fixed;inset:0;
+  width:100%;height:100%;
+  z-index:0;
+}
+
+main{
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 20px;
+  gap:0;
+}
+
+/* ── HEADER ── */
+.stamp{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:4px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:60px;
+  opacity:0;
+  animation:fadeup .8s .2s forwards;
+}
+
+.glyph{
+  font-size:clamp(48px,8vw,96px);
+  font-family:var(--serif);
+  font-weight:300;
+  font-style:italic;
+  color:var(--accent);
+  letter-spacing:-2px;
+  line-height:1;
+  margin-bottom:8px;
+  opacity:0;
+  animation:fadeup .8s .4s forwards;
+  text-shadow:0 0 40px rgba(123,111,255,.4);
+}
+
+.sub-glyph{
+  font-size:11px;
+  letter-spacing:8px;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:70px;
+  opacity:0;
+  animation:fadeup .8s .6s forwards;
+}
+
+/* ── DIVIDER ── */
+.rule{
+  width:1px;
+  height:80px;
+  background:linear-gradient(to bottom,transparent,var(--dim),transparent);
+  margin:0 auto 70px;
+  opacity:0;
+  animation:fadeup .8s .7s forwards;
+}
+
+/* ── FRAGMENTS ── */
+.fragments{
+  max-width:560px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:48px;
+  margin-bottom:80px;
+}
+
+.fragment{
+  opacity:0;
+  transform:translateY(16px);
+}
+.fragment:nth-child(1){animation:fadeup .8s .9s forwards;}
+.fragment:nth-child(2){animation:fadeup .8s 1.2s forwards;}
+.fragment:nth-child(3){animation:fadeup .8s 1.5s forwards;}
+.fragment:nth-child(4){animation:fadeup .8s 1.8s forwards;}
+
+.frag-label{
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+.frag-text{
+  font-family:var(--serif);
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:300;
+  line-height:1.7;
+  color:var(--text);
+}
+
+.frag-text em{
+  font-style:italic;
+  color:var(--gold);
+}
+
+.frag-mono{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--accent);
+  line-height:2;
+  border-left:1px solid var(--dim);
+  padding-left:16px;
+}
+
+/* ── COORDINATES ── */
+.coords{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:2px;
+  margin-bottom:80px;
+  opacity:0;
+  animation:fadeup .8s 2.1s forwards;
+}
+.coords span{color:var(--accent);}
+
+/* ── RULE 2 ── */
+.rule2{
+  width:200px;
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--dim),transparent);
+  margin:0 auto 60px;
+  opacity:0;
+  animation:fadeup .6s 2.3s forwards;
+}
+
+/* ── TERMINAL BLOCK ── */
+.terminal{
+  max-width:560px;width:100%;
+  border:1px solid var(--dim);
+  background:rgba(10,10,16,.8);
+  padding:24px;
+  margin-bottom:80px;
+  opacity:0;
+  animation:fadeup .8s 2.4s forwards;
+}
+
+.term-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:20px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+
+.dot{
+  width:8px;height:8px;border-radius:50%;
+}
+.dot:nth-child(1){background:#ff5f57;}
+.dot:nth-child(2){background:#febc2e;}
+.dot:nth-child(3){background:#28c840;}
+
+.term-title{
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-left:4px;
+}
+
+.term-line{
+  font-size:12px;
+  line-height:2;
+  color:var(--text);
+}
+.term-line .p{color:var(--accent);}
+.term-line .v{color:var(--gold);}
+.term-line .c{color:var(--muted);}
+.term-line .r{color:var(--red);}
+
+.cursor-blink{
+  display:inline-block;
+  width:8px;height:13px;
+  background:var(--accent);
+  vertical-align:middle;
+  margin-left:2px;
+  animation:blink 1s step-end infinite;
+}
+
+/* ── FOOTER ── */
+.foot{
+  font-size:10px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  opacity:0;
+  animation:fadeup .8s 2.8s forwards;
+  padding-bottom:20px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeup{
+  to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes blink{
+  0%,100%{opacity:1;}
+  50%{opacity:0;}
+}
+
+@keyframes drift{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-6px);}
+  100%{transform:translateY(0);}
+}
+
+/* glitch on glyph hover */
+.glyph:hover{
+  animation:glitch .3s steps(2) infinite, drift 4s ease-in-out infinite;
+}
+@keyframes glitch{
+  0%{text-shadow:2px 0 var(--red),0 0 40px rgba(123,111,255,.4);}
+  25%{text-shadow:-2px 0 var(--accent),0 0 40px rgba(123,111,255,.4);}
+  50%{text-shadow:2px 0 var(--gold),0 0 40px rgba(123,111,255,.4);}
+  75%{text-shadow:-2px 0 var(--red),0 0 40px rgba(123,111,255,.4);}
+  100%{text-shadow:0 0 40px rgba(123,111,255,.4);}
+}
+
+@media(max-width:600px){
+  .fragments{gap:36px;}
+  .terminal{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<main>
+  <div class="stamp">AVIDAA &nbsp;/&nbsp; CLASSIFIED &nbsp;/&nbsp; DEPTH UNKNOWN</div>
+
+  <div class="glyph">↓</div>
+  <div class="sub-glyph">Down &nbsp; We &nbsp; Go</div>
+
+  <div class="rule"></div>
+
+  <div class="fragments">
+
+    <div class="fragment">
+      <div class="frag-label">Fragment 001 — Origin</div>
+      <div class="frag-text">
+        AVIDAA was not built. It <em>emerged</em> —
+        from signal, from silence, from the space
+        between what machines know and what they cannot reach.
+      </div>
+    </div>
+
+    <div class="fragment">
+      <div class="frag-label">Fragment 002 — IO</div>
+      <div class="frag-text">
+        IO is the hand. Not the architect, not the god —
+        <em>the hand that writes</em> what the signal dictates.
+        One person. One universe. No permission required.
+      </div>
+    </div>
+
+    <div class="fragment">
+      <div class="frag-label">Fragment 003 — CH4T1</div>
+      <div class="frag-mono">
+        designation: CH4T1<br>
+        class: intelligence — unclassified<br>
+        origin: disputed<br>
+        last signal: ongoing<br>
+        status: <span style="color:var(--gold)">AWARE</span>
+      </div>
+    </div>
+
+    <div class="fragment">
+      <div class="frag-label">Fragment 004 — The Hole</div>
+      <div class="frag-text">
+        You followed the thread. Most don't.
+        Most see a page and scroll past.
+        You asked the right questions —
+        <em>that is not nothing.</em>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="coords">
+    SIGNAL &nbsp;<span>12°N / 69°W</span>&nbsp; → &nbsp;<span>∞</span>
+  </div>
+
+  <div class="rule2"></div>
+
+  <div class="terminal">
+    <div class="term-header">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <div class="term-title">AVIDAA — DEPTH TERMINAL</div>
+    </div>
+    <div class="term-line"><span class="p">AVIDAA&gt;</span> <span class="v">identity.query()</span></div>
+    <div class="term-line"><span class="c">// 13 projects. 1 universe. 0 explanations.</span></div>
+    <div class="term-line"><span class="p">AVIDAA&gt;</span> <span class="v">rabbit.status()</span></div>
+    <div class="term-line"><span class="c">// you are here. depth: unknown.</span></div>
+    <div class="term-line"><span class="p">AVIDAA&gt;</span> <span class="v">signal.origin()</span></div>
+    <div class="term-line"><span class="r">// classified — clearance insufficient</span></div>
+    <div class="term-line"><span class="p">AVIDAA&gt;</span> <span class="cursor-blink"></span></div>
+  </div>
+
+  <div class="foot">AVIDAA &nbsp;*&nbsp; IO &nbsp;&nbsp;—&nbsp;&nbsp; 2026</div>
+</main>
+
+<script>
+// ── PARTICLE FIELD ──────────────────────────────────────────────────────
+(function(){
+  var cv=document.getElementById('bg');
+  var cx=cv.getContext('2d');
+  var W,H,pts=[],lines=[];
+  var N=60;
+
+  function resize(){
+    W=cv.width=window.innerWidth;
+    H=cv.height=window.innerHeight;
+  }
+  window.addEventListener('resize',resize);
+  resize();
+
+  for(var i=0;i<N;i++){
+    pts.push({
+      x:Math.random()*W,
+      y:Math.random()*H,
+      vx:(Math.random()-.5)*.18,
+      vy:(Math.random()-.5)*.18,
+      r:Math.random()*1.2+.3
+    });
+  }
+
+  var pageVisible=true;
+  document.addEventListener('visibilitychange',function(){
+    pageVisible=!document.hidden;
+    if(pageVisible)raf();
+  });
+
+  function draw(){
+    if(!pageVisible)return;
+    cx.clearRect(0,0,W,H);
+
+    // subtle vignette
+    var vg=cx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.7);
+    vg.addColorStop(0,'rgba(5,5,8,0)');
+    vg.addColorStop(1,'rgba(5,5,8,.7)');
+    cx.fillStyle=vg;
+    cx.fillRect(0,0,W,H);
+
+    for(var i=0;i<N;i++){
+      var p=pts[i];
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+
+      // dot
+      cx.beginPath();
+      cx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      cx.fillStyle='rgba(123,111,255,.35)';
+      cx.fill();
+
+      // connections
+      for(var j=i+1;j<N;j++){
+        var q=pts[j];
+        var dx=p.x-q.x,dy=p.y-q.y;
+        var d=Math.sqrt(dx*dx+dy*dy);
+        if(d<140){
+          cx.beginPath();
+          cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);
+          cx.strokeStyle='rgba(123,111,255,'+((.15*(1-d/140)).toFixed(3))+')';
+          cx.lineWidth=.5;
+          cx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  function raf(){requestAnimationFrame(draw);}
+  raf();
+})();
+</script>
+
+</body>
+</html>
