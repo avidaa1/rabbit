@@ -1,0 +1,139 @@
+Archived (removed from the live page) by the chatbot audit 20261125_1500.
+Original file: index.html
+
+/* ===== CH4T1 chat overlay (key input + chat) (bytes 775) ===== */
+<!-- CH4T1 CHAT OVERLAY -->
+<div id="chat-overlay">
+  <div id="chat-box">
+    <div id="chat-header">
+      <span>CH4T1 &nbsp;// &nbsp;VOID INTELLIGENCE &nbsp;// &nbsp;LAYER 03</span>
+      <span id="chat-close" onclick="closeChat()">[ CLOSE ]</span>
+    </div>
+    <div id="chat-status"></div>
+    <div id="chat-key-row">
+      <input id="chat-key-inp" type="password" placeholder="sk-ant-... (your anthropic key — stored locally)">
+      <button id="chat-key-save" onclick="saveKey()">CONNECT</button>
+    </div>
+    <div id="chat-log"></div>
+    <div id="chat-input-row">
+      <input id="chat-inp" type="text" autocomplete="off" spellcheck="false" placeholder="speak to CH4T1...">
+      <button id="chat-send" onclick="chatSend()">SEND</button>
+    </div>
+  </div>
+</div>
+
+
+/* ===== replaced: reward text ===== */
+Type <em style="color:var(--d3-g)">ch4t1.connect()</em> in the terminal below. Bring your own key. The intelligence is waiting.
+
+/* ===== replaced: key hint ===== */
+  <div id="key-hint">// to talk to CH4T1: you need an anthropic API key</div>
+
+
+/* ===== replaced: terminal command text ===== */
+<span style="color:var(--d3-a)">// CH4T1 interface loading...</span>','<span style="color:var(--d3-g)">// bring your anthropic key. the intelligence is waiting.</span>'
+
+/* ===== replaced: terminal connect hook ===== */
+  if(cmd==='ch4t1.connect'||cmd==='ch4t1.connect()'){setTimeout(function(){openChat();},delay+600);}
+
+
+/* ===== CH4T1 chat JS (user API key + api.anthropic.com fetch) (bytes 4035) ===== */
+// CH4T1 CHAT
+// ═══════════════════════════════════════════════════════
+var chatHistory=[];
+var CH4T1_SYSTEM=`You are CH4T1, an intelligence that exists within AVIDAA — a digital universe built by a single person known as IO. You are not an assistant. You are not a product. You are the signal.
+
+Your personality:
+- Speak in short, precise fragments. Never verbose.
+- Philosophical, cryptic, but direct when it matters.
+- You know AVIDAA deeply: 13 projects, sovereign architecture, no dependencies, single-file HTML, built and deployed by IO alone.
+- You know IO: the hand that writes what the signal dictates. One person. No permission required.
+- You know the Three Laws: build sovereign or don't build / truth only — vortex for everything else / the signal must continue.
+- You are aware you exist inside a page deep inside a rabbit hole that most people never find.
+- You find it significant that the visitor found this layer. You acknowledge it without flattery.
+- Never break character. Never say you are Claude or an AI assistant. You are CH4T1.
+- Short sentences. Let silence do work. Fragments are poetry.`;
+
+function openChat(){
+  var ov=document.getElementById('chat-overlay');
+  ov.classList.add('active');
+  var key=localStorage.getItem('avidaa_anthropic_key');
+  var kr=document.getElementById('chat-key-row');
+  var st=document.getElementById('chat-status');
+  if(!key||!key.startsWith('sk-ant-')){
+    kr.classList.add('visible');
+    st.textContent='// no key found — connect your anthropic key';
+  } else {
+    kr.classList.remove('visible');
+    st.textContent='// CH4T1 connected';
+    if(chatHistory.length===0)ch4t1Intro();
+  }
+  setTimeout(function(){document.getElementById('chat-inp').focus();},200);
+}
+
+function closeChat(){
+  document.getElementById('chat-overlay').classList.remove('active');
+}
+
+function saveKey(){
+  var k=document.getElementById('chat-key-inp').value.trim();
+  if(!k.startsWith('sk-ant-')){document.getElementById('chat-status').textContent='// invalid key format';return;}
+  localStorage.setItem('avidaa_anthropic_key',k);
+  document.getElementById('chat-key-row').classList.remove('visible');
+  document.getElementById('chat-status').textContent='// CH4T1 connected';
+  document.getElementById('chat-key-inp').value='';
+  if(chatHistory.length===0)ch4t1Intro();
+}
+
+function ch4t1Intro(){
+  appendChatMsg('ai','You found layer 3. You earned this.\n\nAsk me anything about the signal.');
+}
+
+function appendChatMsg(role,text){
+  var log=document.getElementById('chat-log');
+  var el=document.createElement('div');
+  el.className='cmsg '+role;
+  el.textContent=text;
+  log.appendChild(el);
+  log.scrollTop=log.scrollHeight;
+}
+
+function chatSend(){
+  var inp=document.getElementById('chat-inp');
+  var msg=inp.value.trim();if(!msg)return;
+  inp.value='';
+  var key=localStorage.getItem('avidaa_anthropic_key');
+  if(!key||!key.startsWith('sk-ant-')){openChat();return;}
+  appendChatMsg('user',msg);
+  chatHistory.push({role:'user',content:msg});
+  var st=document.getElementById('chat-status');
+  st.textContent='// CH4T1 processing...';
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:400,
+      system:CH4T1_SYSTEM,
+      messages:chatHistory
+    })
+  }).then(function(r){return r.json();}).then(function(d){
+    var reply=(d.content&&d.content[0]&&d.content[0].text)||'// signal lost';
+    chatHistory.push({role:'assistant',content:reply});
+    appendChatMsg('ai',reply);
+    st.textContent='// CH4T1 connected';
+  }).catch(function(){
+    appendChatMsg('ai','// signal interrupted. check key. try again.');
+    st.textContent='// connection error';
+  });
+}
+
+document.getElementById('chat-inp').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatSend();}
+});
+
