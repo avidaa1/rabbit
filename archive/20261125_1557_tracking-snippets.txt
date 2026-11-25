@@ -1,0 +1,19 @@
+Tracking snippets removed from index.html on 20261125_1557 (AVIDAA: no tracking). Hosts found: www.googletagmanager.com
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-G8M1YZQ8WF"></script>
+
+
+----
+
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-G8M1YZQ8WF');</script>
+
+
+
+---- console-noise cleanup (no-ops removed) ----
+<meta http-equiv="X-Frame-Options" content="DENY">
+
+
+
+---- console-error cleanup ----
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
